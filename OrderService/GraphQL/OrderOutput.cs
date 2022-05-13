@@ -1,8 +1,8 @@
 ﻿namespace OrderService.GraphQL
 {
-    public record OrderOutput
-    (
-        bool status,
-        string? message
-    );
+    public class OrderOutput
+    {
+        public string TransactionDate { set; get; }
+        public string Message { set; get; }
+    }
 }

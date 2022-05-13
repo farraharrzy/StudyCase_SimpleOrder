@@ -13,6 +13,16 @@ builder.Services.AddDbContext<StudyCase_SimpleOrderContext>(options =>
      options.UseSqlServer(conString)
 );
 
+//Kafka
+builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("KafkaSettings"));
+
+// graphql
+builder.Services
+    .AddGraphQLServer()
+    .AddQueryType<Query>()
+    .AddMutationType<Mutation>()
+    .AddAuthorization();
+
 //JWT Token
 // DI Dependency Injection
 builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));
@@ -33,8 +43,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
     });
 
-//Kafka
-builder.Services.Configure<KafkaSettings>(builder.Configuration.GetSection("KafkaSettings"));
+
 
 
 builder.Services.AddCors(options =>
@@ -43,18 +52,12 @@ builder.Services.AddCors(options =>
 }
 );
 
-// graphql
-builder.Services
-    .AddGraphQLServer()
-    .AddQueryType<Query>()
-    .AddMutationType<Mutation>()
-    .AddAuthorization();
+
 
 
 var app = builder.Build();
 
 app.UseAuthentication();
-//app.UseAuthorization();
 
 app.MapGraphQL();
 app.MapGet("/", () => "Hello World!");

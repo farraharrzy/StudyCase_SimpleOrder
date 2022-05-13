@@ -12,15 +12,32 @@ namespace OrderService.GraphQL
            OrderInput input,
            [Service] IOptions<KafkaSettings> settings)
         {
-            var key = "Submit-Order-" + DateTime.Now.ToString();
-            var val = JsonConvert.SerializeObject(input);
+            var dts = DateTime.Now.ToString();
+            var key = "order-" + dts;
+
+            // EF
+            var order = new OrderInput
+            {
+                UserId = input.UserId,
+                Product = input.Product,
+                Quantity = input.Quantity,
+                Price = input.Price
+            };
+
+            var val = JsonConvert.SerializeObject(order);
+
             var result = await KafkaHelper.SendMessage(settings.Value, "tugasfinal", key, val);
 
-            var ret = new OrderOutput(result, "Success to Submit Order");
-            if (!result)
-                ret = new OrderOutput(result, "Failed to Submit Order");
+            OrderOutput resp = new OrderOutput
+            {
+                TransactionDate = dts,
+                Message = "Order was submitted successfully"
+            };
 
-            return await Task.FromResult(ret);
+            if (!result)
+                resp.Message = "Failed to submit data";
+
+            return await Task.FromResult(resp);
         }
     }
 }

@@ -39,10 +39,13 @@ using (var consumer = new ConsumerBuilder<string, string>(config).Build())
             var cr = consumer.Consume(cts.Token);
             Console.WriteLine($"Consumed record with key: {cr.Message.Key} and value: {cr.Message.Value}");
 
+            // EF
             using (var context = new StudyCase_SimpleOrderContext())
             {
                 Order order = JsonConvert.DeserializeObject<Order>(cr.Message.Value);
                 order.OrderCode = cr.Message.Key;
+                order.Created = DateTime.Now;
+                order.OrderContent = cr.Message.Value;
 
                 context.Orders.Add(order);
                 context.SaveChanges();
